@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini CRM</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="container" id="login-page">
+    <h1>Admin Login</h1>
+    <div class="login-box">
+        <input id="username" placeholder="Username">
+        <input id="password" placeholder="Password" type="password">
+        <button onclick="login()">Login</button>
+        <p id="login-msg"></p>
+    </div>
+</div>
+
+<div class="container" id="dashboard" style="display:none;">
+    <header>
+        <h1>Mini CRM Dashboard</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </header>
+
+    <section class="add-lead">
+        <h2>Add Lead</h2>
+        <div class="form-group">
+            <input id="name" placeholder="Name">
+            <input id="email" placeholder="Email">
+            <select id="source">
+                <option value="Website">Website</option>
+                <option value="Email">Email</option>
+                <option value="Referral">Referral</option>
+                <option value="Other">Other</option>
+            </select>
+            <button onclick="addLead()">Add Lead</button>
+        </div>
+    </section>
+
+    <section class="leads-section">
+        <h2>Leads Overview</h2>
+
+        <!-- Analytics Box -->
+        <div id="analytics" class="analytics-box"></div>
+
+        <!-- Search and Sorting -->
+        <div class="lead-controls">
+            <input type="text" id="searchInput" placeholder="Search leads by name, email, or status" onkeyup="filterLeads()">
+            <select id="sortBy" onchange="loadLeadsWithSort()">
+                <option value="date">Sort by Date</option>
+                <option value="status">Sort by Status</option>
+                <option value="source">Sort by Source</option>
+            </select>
+            <select id="filterStatus" onchange="loadLeadsWithSort()">
+                <option value="">All Status</option>
+                <option value="New">New</option>
+                <option value="Contacted">Contacted</option>
+                <option value="Converted">Converted</option>
+            </select>
+        </div>
+
+        <div id="leads"></div>
+    </section>
+</div>
+
+<script>
+// ---------------- LOGIN ----------------
+async function login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        loadLeads();
+    } else {
+        alert(data.message);
+    }
+}
+
+// ---------------- LOGOUT ----------------
+async function logout() {
+    await fetch('/logout');
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('login-page').style.display = 'block';
+}
+
+// ---------------- LOAD LEADS ----------------
+async function loadLeads() {
+    const sortBy = document.getElementById('sortBy')?.value || 'date';
+    const statusFilter = document.getElementById('filterStatus')?.value || '';
+    let url = `/leads?sortBy=${sortBy}`;
+    if (statusFilter) url += `&status=${statusFilter}`;
+
+    const res = await fetch(url);
+    const leads = await res.json();
+    renderLeads(leads);
+}
+
+// Render leads
+function renderLeads(leads) {
+    const container = document.getElementById('leads');
+    const analytics = document.getElementById('analytics');
+    container.innerHTML = '';
+
+    const total = leads.length;
+    const converted = leads.filter(l => l.status==='Converted').length;
+    const contacted = leads.filter(l => l.status==='Contacted').length;
+    analytics.innerHTML = `<p><b>Total Leads:</b> ${total} | <b>Contacted:</b> ${contacted} | <b>Converted:</b> ${converted}</p>`;
+
+    leads.forEach(lead => {
+        const statusClass = lead.status; // Use for color coding
+        container.innerHTML += `
+            <div class="lead-card ${statusClass}">
+                <div class="lead-info">
+                    <p><b>Name:</b> ${lead.name}</p>
+                    <p><b>Email:</b> ${lead.email}</p>
+                    <p><b>Source:</b> ${lead.source}</p>
+                    <p><b>Status:</b> ${lead.status}</p>
+                    <p><b>Notes:</b> <input type="text" value="${lead.notes||''}" id="note-${lead.id}" placeholder="Add note"></p>
+                    <p class="created"><small>Created: ${new Date(lead.created_at).toLocaleString()}</small></p>
+                </div>
+                <div class="lead-actions">
+                    <select onchange="updateLead(${lead.id}, this.value)">
+                        <option ${lead.status==='New'?'selected':''}>New</option>
+                        <option ${lead.status==='Contacted'?'selected':''}>Contacted</option>
+                        <option ${lead.status==='Converted'?'selected':''}>Converted</option>
+                    </select>
+                    <button onclick="saveNote(${lead.id})">Save Note</button>
+                    <button onclick="deleteLead(${lead.id})">Delete</button>
+                </div>
+            </div>
+        `;
+    });
+
+    filterLeads();
+}
+
+// ---------------- ADD LEAD ----------------
+async function addLead() {
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const source = document.getElementById('source').value;
+
+    if (!name || !email) return alert("Name and Email are required!");
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (!emailRegex.test(email)) return alert("Invalid email format!");
+
+    const res = await fetch('/leads', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name,email,source})
+    });
+    const data = await res.json();
+    if(data.success) alert(data.message);
+    loadLeads();
+}
+
+// ---------------- UPDATE LEAD ----------------
+async function updateLead(id, status) {
+    const note = document.getElementById(`note-${id}`).value;
+    const res = await fetch(`/leads/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status,notes:note}) });
+    const data = await res.json();
+    if(data.success) alert(data.message);
+    loadLeads();
+}
+
+// ---------------- SAVE NOTE ----------------
+async function saveNote(id) {
+    const note = document.getElementById(`note-${id}`).value;
+    const status = document.querySelector(`#note-${id}`).closest('.lead-card').querySelector('select').value;
+    const res = await fetch(`/leads/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status,notes:note}) });
+    const data = await res.json();
+    if(data.success) alert("Note saved!");
+    loadLeads();
+}
+
+// ---------------- DELETE LEAD ----------------
+async function deleteLead(id) {
+    if(!confirm("Are you sure you want to delete this lead?")) return;
+    const res = await fetch(`/leads/${id}`, { method:'DELETE' });
+    const data = await res.json();
+    if(data.success) alert(data.message);
+    loadLeads();
+}
+
+// ---------------- SEARCH / FILTER ----------------
+function filterLeads() {
+    const input = document.getElementById('searchInput').value.toLowerCase();
+    const leadCards = document.querySelectorAll('#leads .lead-card');
+    leadCards.forEach(card => {
+        const name = card.querySelector('.lead-info p:nth-child(1)').innerText.toLowerCase();
+        const email = card.querySelector('.lead-info p:nth-child(2)').innerText.toLowerCase();
+        const status = card.querySelector('.lead-info p:nth-child(4)').innerText.toLowerCase();
+        card.style.display = (name.includes(input) || email.includes(input) || status.includes(input)) ? 'flex' : 'none';
+    });
+}
+
+// ---------------- LOAD WITH SORT ----------------
+function loadLeadsWithSort() {
+    loadLeads();
+}
+</script>
+</body>
+</html>

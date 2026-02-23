@@ -1,0 +1,240 @@
+/* ========== GENERAL ========== */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+.container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+h1, h2 { color: #333; }
+
+/* ========== LOGIN PAGE ========== */
+
+#login-page {
+    text-align: center;
+    padding-top: 80px;
+}
+
+#login-page h1 {
+    font-size: 28px;
+    margin-bottom: 25px;
+    color: #007bff;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto;
+    padding: 30px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    transition: transform 0.3s ease;
+}
+
+.login-box:hover {
+    transform: translateY(-3px);
+}
+
+.login-box input {
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.login-box input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 6px rgba(0,123,255,0.3);
+}
+
+.login-box button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.login-box button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* ========== DASHBOARD ========== */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logout-btn {
+    padding: 8px 15px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    background-color: #cc0000;
+}
+
+/* Add lead form */
+.add-lead .form-group input,
+.add-lead .form-group select {
+    padding: 10px;
+    margin-right: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.add-lead .form-group button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.add-lead .form-group button:hover {
+    background-color: #1e7e34;
+}
+
+/* ========== LEADS SECTION ========== */
+.lead-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: #e9f5ff;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.lead-card.New { border-left: 5px solid blue; }
+.lead-card.Contacted { border-left: 5px solid orange; }
+.lead-card.Converted { border-left: 5px solid green; }
+
+.lead-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+}
+
+.lead-info p {
+    margin: 5px 0;
+}
+
+.lead-info .created {
+    font-size: 0.8em;
+    color: #777;
+}
+
+.lead-actions select,
+.lead-actions button {
+    margin: 5px 5px 0 0;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.lead-actions button {
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    transition: background 0.3s;
+}
+
+.lead-actions button:hover {
+    background-color: #117a8b;
+}
+
+.lead-actions button:last-child {
+    background-color: #dc3545; /* Delete button red */
+}
+
+.lead-actions button:last-child:hover {
+    background-color: #b21f2d;
+}
+
+/* ========== ANALYTICS ========== */
+.analytics-box {
+    padding: 10px;
+    margin-bottom: 15px;
+    background: #f3f3f3;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+/* ========== SEARCH & SORT ========== */
+.lead-controls {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.lead-controls input[type="text"] {
+    padding: 8px 12px;
+    width: 100%;
+    max-width: 300px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+}
+
+.lead-controls input:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
+.lead-controls select {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-left: 10px;
+}
+
+/* ========== RESPONSIVE ========== */
+@media(max-width:768px){
+    .lead-card {
+        flex-direction: column;
+    }
+    .lead-actions {
+        margin-top: 10px;
+    }
+    .lead-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .lead-controls select {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+}
